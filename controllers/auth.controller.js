@@ -1,8 +1,8 @@
 import mongoose from "mongoose"
-import User from "../models/user.model";
-import bcrypt from 'bcryptjs'
+import User from "../models/user.model.js";
+import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { JWT_EXPIRES_IN, JWT_SECRET } from "../config/env";
+import { JWT_EXPIRES_IN, JWT_SECRET } from "../config/env.js";
 
 // what is a req body? -> req.body is an object containing data from the client (post request)
 
@@ -27,7 +27,7 @@ export const signUp = async (req, res, next) => {
     const salt = await bcrypt.getSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUsers = await user.create([{name, email, password: hashedPassword}], {session});
+    const newUsers = await User.create([{name, email, password: hashedPassword}], {session});
 
     const token = jwt.sign({userId: newUsers[0]._id }, JWT_SECRET, {expiresIn: JWT_EXPIRES_IN})
 
