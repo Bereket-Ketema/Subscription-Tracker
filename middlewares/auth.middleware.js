@@ -1,4 +1,5 @@
 import { JWT_SECRET } from "../config/env.js";
+import jwt from 'jsonwebtoken';
 import User from "../models/user.model.js";
 
 // someone is making a request get user details -> authorize middleware
