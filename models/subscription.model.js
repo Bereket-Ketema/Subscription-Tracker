@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const subscriptionSchema = new mongoose({
+const subscriptionSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Subscription name is required'],
@@ -20,7 +20,7 @@ const subscriptionSchema = new mongoose({
   },
   frequency: {
     type: String,
-    enum: [daily, 'weekly', 'monthly', 'yearly'],
+    enum: ['daily', 'weekly', 'monthly', 'yearly'],
   },
   category: {
     type: String,
@@ -35,21 +35,25 @@ const subscriptionSchema = new mongoose({
   status: {
     type: String,
     enum: ['active', 'cancelled', 'expired'],
-    default: active
+    default: 'active'
   },
   startDate: {
     type: Date,
     required: true,
     validate: {
-      validator: (value) => value <= new Date(),
+      validator: function(value) {
+        return value <= new Date();
+      },
       message: 'start date must be in the past',
     }
   },
   renewalDate: {
     type: Date,
     validate: {
-      validator: function(value) { return value > this.startDate()},
-      message: 'Renewal date must be after the start date',
+      validator: function(value) { 
+        return value > this.startDate;
+      },
+      message: 'Renewal date must be after the start date', 
     }
   },
   user: {
@@ -61,8 +65,9 @@ const subscriptionSchema = new mongoose({
 }, {timestamps: true});
 
 // Auto-calculate renewal date if missing.
-subscriptionSchema.pre( function(next){
-  if(!this.renewalDate){
+// ✅ WORKING RENEWAL DATE CALCULATION - Only this part
+subscriptionSchema.pre('save', function(next) {
+  try {
     const renewalPeriods = {
       daily: 1,
       weekly: 7,
@@ -70,16 +75,21 @@ subscriptionSchema.pre( function(next){
       yearly: 365,
     };
 
-    this.renewalDate = new Date(this.startDate);
-    this.renewalDate.setDate(this.renewalDate.getDate() + renewalPeriods[this.frequency]);
-  }
+    // Only calculate if renewalDate is missing AND frequency exists
+    if (!this.renewalDate && this.frequency && renewalPeriods[this.frequency]) {
+      this.renewalDate = new Date(this.startDate);
+      this.renewalDate.setDate(this.renewalDate.getDate() + renewalPeriods[this.frequency]);
+    }
 
-  //Auto-update the status if renewal date has passed
-  if(this.renewalDate < new Date()){
-    this.status = 'expired';
-  }
+    // Auto-update status if renewal date has passed
+    if (this.renewalDate && this.renewalDate < new Date()) {
+      this.status = 'expired';
+    }
 
-  next();
+    // next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
