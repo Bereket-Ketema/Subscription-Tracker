@@ -15,6 +15,17 @@ app.use(express.json());//able to handle json data send in request or api calls
 app.use(express.urlencoded({extended: false}));// to process the form data sent by html forms in a simple format
 app.use(cookieParser());// read cookies form incoming request able app to store user data
 
+// 🔍 DEBUGGING MIDDLEWARE - Add this temporarily
+// app.use((req, res, next) => {
+//   console.log('=== DEBUG ===');
+//   console.log('Method:', req.method);
+//   console.log('URL:', req.url);
+//   console.log('Headers:', req.headers);
+//   console.log('Body:', req.body);
+//   console.log('=============');
+//   next();
+// });
+
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/subscriptions', subscriptionRouter);
