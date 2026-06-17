@@ -7,6 +7,7 @@ import connectToDatabase from './database/mongodb.js';
 import errorMiddleware from './middlewares/error.middleware.js';
 import cookieParser from 'cookie-parser';
 import arcjetMiddleware from './middlewares/arcjet.middleware.js';
+import workflowRouter from './routes/workflow.route.js';
 
 
 const app = express();
@@ -17,20 +18,11 @@ app.use(express.urlencoded({extended: false}));// to process the form data sent 
 app.use(cookieParser());// read cookies form incoming request able app to store user data
 app.use(arcjetMiddleware);
 
-// 🔍 DEBUGGING MIDDLEWARE - Add this temporarily
-// app.use((req, res, next) => {
-//   console.log('=== DEBUG ===');
-//   console.log('Method:', req.method);
-//   console.log('URL:', req.url);
-//   console.log('Headers:', req.headers);
-//   console.log('Body:', req.body);
-//   console.log('=============');
-//   next();
-// });
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/subscriptions', subscriptionRouter);
+app.use('/api/v1/workflows', workflowRouter);
 
 app.use(errorMiddleware);// we have created our own error cases
 
