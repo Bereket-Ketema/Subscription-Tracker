@@ -4,8 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "nodemon app.js",
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "build": "npm install --production",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "@arcjet/inspect": "^1.5.0",
